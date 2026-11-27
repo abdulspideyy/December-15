@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#111111">
+<title>15 — My Mission</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;background:#111;color:#eee;
+  font-family:Arial,Helvetica,sans-serif;
+  padding:22px 16px 40px;
+}
+.container{max-width:540px;margin:auto}
+.muted{color:#888}
+.top{display:flex;justify-content:space-between;align-items:center}
+.tag{font-size:11px;letter-spacing:2px;color:#b5a47b}
+.card{
+  background:#1b1b1b;border:1px solid #2c2c2c;
+  padding:20px;border-radius:16px;margin-top:16px;
+}
+.count{text-align:center;padding:25px 10px 10px}
+.count h1{font-size:54px;margin:10px 0;color:#d6b86a}
+.count p{color:#999;font-size:13px}
+h2{font-size:17px;margin:0 0 15px}
+h3{font-size:14px;margin:0 0 10px}
+input,textarea{
+  width:100%;background:#242424;border:1px solid #383838;
+  border-radius:10px;padding:12px;color:#fff;font-size:14px;
+  outline:none;
+}
+textarea{resize:vertical;min-height:100px}
+button{
+  background:#d6b86a;color:#151515;border:none;border-radius:9px;
+  padding:11px 14px;font-weight:bold;cursor:pointer;
+}
+button.secondary{background:#292929;color:#ddd;border:1px solid #383838}
+button.small{padding:7px 10px;font-size:12px}
+.row{display:flex;gap:9px;align-items:center}
+.row input{flex:1;min-width:0}
+.task{
+  display:flex;align-items:center;gap:10px;
+  background:#242424;border-radius:10px;padding:12px;margin-top:9px;
+}
+.task input[type=checkbox]{width:18px;height:18px;accent-color:#d6b86a}
+.task span{flex:1;font-size:14px;overflow-wrap:anywhere}
+.task.done span{text-decoration:line-through;color:#777}
+.delete{background:none;color:#888;padding:4px;font-size:18px}
+.stats{display:flex;justify-content:space-between;gap:10px}
+.stat{flex:1;background:#242424;border-radius:12px;padding:13px}
+.stat strong{display:block;font-size:20px;margin-top:8px}
+.stat label{color:#999;font-size:11px}
+.bar{height:7px;background:#333;border-radius:10px;margin-top:12px;overflow:hidden}
+.fill{height:100%;width:0;background:#d6b86a;transition:width .3s}
+.quote{font-size:15px;line-height:1.6;color:#ddd;font-style:italic}
+.reward{display:flex;gap:10px;align-items:center;margin-top:13px}
+.reward .check{color:#d6b86a;font-size:18px}
+.reward span:last-child{font-size:13px}
+.footer{text-align:center;font-size:11px;color:#666;margin-top:25px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="top">
+    <span class="tag">15 / DECEMBER</span>
+    <span class="tag" id="dayLabel">DAY --</span>
+  </div>
+
+  <div class="card count">
+    <p class="tag">YOUR DEADLINE</p>
+    <h1 id="countdown">--</h1>
+    <p id="dateText">15 December 2026</p>
+    <p>Time is moving. So are you.</p>
+  </div>
+
+  <div class="card">
+    <h2>Today's reminder</h2>
+    <div class="quote" id="quote"></div>
+  </div>
+
+  <div class="card">
+    <h2>Today's plan</h2>
+    <div id="tasks"></div>
+    <div class="row" style="margin-top:12px">
+      <input id="taskInput" placeholder="Add a task..." maxlength="120">
+      <button id="addTask">Add</button>
+    </div>
+    <p class="muted" style="font-size:12px" id="taskSummary"></p>
+  </div>
+
+  <div class="card">
+    <h2>The mission</h2>
+    <div class="stats">
+      <div class="stat">
+        <label>MONEY EARNED</label>
+        <strong id="money">$0</strong>
+      </div>
+      <div class="stat">
+        <label>CLIENTS</label>
+        <strong id="clients">0 / 2</strong>
+      </div>
+    </div>
+
+    <div style="margin-top:18px">
+      <div class="row">
+        <h3 style="flex:1">Leads collected</h3>
+        <strong id="leads">0 / 1,000</strong>
+      </div>
+      <div class="bar"><div class="fill" id="leadBar"></div></div>
+      <div class="row" style="margin-top:12px">
+        <input id="leadInput" type="number" min="1" placeholder="Add leads">
+        <button id="addLeads">Add</button>
+      </div>
+    </div>
+
+    <div style="margin-top:18px">
+      <div class="row">
+        <h3 style="flex:1">Money earned</h3>
+      </div>
+      <div class="row">
+        <input id="moneyInput" type="number" min="1" placeholder="Amount in USD">
+        <button id="addMoney">Add $</button>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:12px">
+      <button class="secondary" style="flex:1" id="addClient">+ Client</button>
+      <button class="secondary" style="flex:1" id="undoClient">Undo client</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Rewards</h2>
+    <p class="muted" style="font-size:12px">Earn them. Don't just promise yourself.</p>
+    <div id="rewards"></div>
+  </div>
+
+  <div class="card">
+    <h2>Tonight, with yourself</h2>
+    <p class="muted" style="font-size:12px">Write honestly. This stays on this device.</p>
+    <textarea id="journal" placeholder="What was on your mind today?"></textarea>
+    <p class="muted" style="font-size:12px" id="journalStatus"></p>
+  </div>
+
+  <div class="footer">ONE DAY AT A TIME.</div>
+</div>
+
+<script>
+const TARGET = new Date("2026-12-15T00:00:00+05:00");
+const STORAGE = "december15_v1";
+
+const messages = [
+ "You don't need to feel ready. You need to begin.",
+ "Nobody is coming to build your life for you. But you don't have to hate yourself while building it.",
+ "Consistency is quieter than motivation. Choose consistency.",
+ "You are allowed to begin again today.",
+ "Don't confuse being exhausted with being productive. Take care of yourself.",
+ "The goal isn't to impress anyone. The goal is to build a life you can live with.",
+ "Some days progress is simply refusing to give up.",
+ "You don't have to solve your entire life today.",
+ "Work in silence. But don't turn silence into loneliness.",
+ "A small honest effort is worth more than a perfect plan.",
+ "You cannot control the outcome. You can control today's effort.",
+ "Give yourself the patience you give other people.",
+ "It's okay to rest. Rest isn't betrayal of your ambition.",
+ "Make the next decision a good one.",
+ "Let your actions speak, even if nobody is listening.",
+ "Discipline without self-respect becomes punishment.",
+ "Keep moving. Slowly is still moving.",
+ "Your life is bigger than this deadline.",
+ "Be proud of the work, not just the outcome.",
+ "Go and live the day. It's yours."
+];
+
+const defaults = [
+ "Find 50 necklace brands",
+ "Send 30 emails",
+ "Send 10 Instagram DMs",
+ "Workout or take a walk"
+];
+
+function todayKey(){
+  const d=new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function dayNumber(){
+  return Math.max(1,Math.ceil((TARGET-new Date())/(1000*60*60*24)));
+}
+function load(){
+  try{return JSON.parse(localStorage.getItem(STORAGE))||{}}
+  catch(e){return {}}
+}
+function save(){
+  localStorage.setItem(STORAGE,JSON.stringify(state));
+}
+let state=load();
+if(!state.tasksByDay)state.tasksByDay={};
+if(!state.leads)state.leads=0;
+if(!state.money)state.money=0;
+if(!state.clients)state.clients=0;
+if(!state.journals)state.journals={};
+
+const key=todayKey();
+if(!state.tasksByDay[key]){
+ state.tasksByDay[key]=defaults.map(t=>({text:t,done:false}));
+ save();
+}
+let tasks=state.tasksByDay[key];
+
+function renderCountdown(){
+ const now=new Date();
+ const diff=TARGET-now;
+ if(diff<=0){
+  document.getElementById("countdown").textContent="TODAY";
+  document.getElementById("dayLabel").textContent="DAY 20";
+  return;
+ }
+ const days=Math.ceil(diff/(1000*60*60*24));
+ document.getElementById("countdown").textContent=days+" DAYS";
+ document.getElementById("dayLabel").textContent="DAY "+Math.min(20,21-days);
+}
+function renderQuote(){
+ const elapsed=Math.max(0,Math.floor((TARGET-new Date())/(1000*60*60*24)));
+ const index=(20-elapsed)%messages.length;
+ document.getElementById("quote").textContent='"'+messages[Math.max(0,index)]+'"';
+}
+function renderTasks(){
+ const holder=document.getElementById("tasks");
+ holder.innerHTML="";
+ tasks.forEach((t,i)=>{
+  const div=document.createElement("div");
+  div.className="task"+(t.done?" done":"");
+  const cb=document.createElement("input");
+  cb.type="checkbox";cb.checked=t.done;
+  cb.onchange=()=>{
+    tasks[i].done=cb.checked;save();renderTasks();
+  };
+  const span=document.createElement("span");
+  span.textContent=t.text;
+  const del=document.createElement("button");
+  del.className="delete";del.textContent="×";
+  del.onclick=()=>{tasks.splice(i,1);save();renderTasks()};
+  div.append(cb,span,del);
+  holder.append(div);
+ });
+ const completed=tasks.filter(t=>t.done).length;
+ document.getElementById("taskSummary").textContent=
+  completed+" of "+tasks.length+" tasks completed";
+}
+function renderMission(){
+ document.getElementById("money").textContent="$"+state.money;
+ document.getElementById("clients").textContent=state.clients+" / 2";
+ document.getElementById("leads").textContent=
+  Math.min(state.leads,1000).toLocaleString()+" / 1,000";
+ document.getElementById("leadBar").style.width=
+  Math.min(100,state.leads/10)+"%";
+}
+const rewardItems=[
+ {name:"50 leads",ok:()=>state.leads>=50},
+ {name:"First client",ok:()=>state.clients>=1},
+ {name:"$100 earned",ok:()=>state.money>=100},
+ {name:"500 leads",ok:()=>state.leads>=500},
+ {name:"2 clients",ok:()=>state.clients>=2},
+ {name:"$200 earned — the final goal",ok:()=>state.money>=200}
+];
+function renderRewards(){
+ const holder=document.getElementById("rewards");
+ holder.innerHTML="";
+ rewardItems.forEach(r=>{
+  const row=document.createElement("div");
+  row.className="reward";
+  const mark=document.createElement("span");
+  mark.className="check";
+  mark.textContent=r.ok()?"✓":"○";
+  const label=document.createElement("span");
+  label.textContent=r.name;
+  label.style.color=r.ok()?"#d6b86a":"#bbb";
+  row.append(mark,label);
+  holder.append(row);
+ });
+}
+function renderJournal(){
+ const j=document.getElementById("journal");
+ j.value=state.journals[key]||"";
+}
+document.getElementById("addTask").onclick=()=>{
+ const input=document.getElementById("taskInput");
+ const text=input.value.trim();
+ if(!text)return;
+ tasks.push({text,done:false});
+ input.value="";
+ save();renderTasks();
+};
+document.getElementById("taskInput").addEventListener("keydown",e=>{
+ if(e.key==="Enter")document.getElementById("addTask").click();
+});
+document.getElementById("addLeads").onclick=()=>{
+ const input=document.getElementById("leadInput");
+ const n=parseInt(input.value);
+ if(!n||n<1)return;
+ state.leads+=n;input.value="";
+ save();renderMission();renderRewards();
+};
+document.getElementById("addMoney").onclick=()=>{
+ const input=document.getElementById("moneyInput");
+ const n=parseFloat(input.value);
+ if(!n||n<1)return;
+ state.money=Math.round((state.money+n)*100)/100;
+ input.value="";
+ save();renderMission();renderRewards();
+};
+document.getElementById("addClient").onclick=()=>{
+ state.clients++;
+ save();renderMission();renderRewards();
+};
+document.getElementById("undoClient").onclick=()=>{
+ state.clients=Math.max(0,state.clients-1);
+ save();renderMission();renderRewards();
+};
+document.getElementById("journal").addEventListener("input",()=>{
+ state.journals[key]=document.getElementById("journal").value;
+ save();
+ document.getElementById("journalStatus").textContent="Saved on this device.";
+});
+renderCountdown();
+renderQuote();
+renderTasks();
+renderMission();
+renderRewards();
+renderJournal();
+</script>
+</body>
+</html>
